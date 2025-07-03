@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prize Winning Spin Wheel</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --glow-color-1: #00f2ff;
+            --glow-color-2: #ff00c8;
+            --bg-color-1: #1a0b2e;
+            --bg-color-2: #0f051d;
+            --text-color: #f0f0f0;
+            --button-bg: linear-gradient(90deg, var(--glow-color-2), var(--glow-color-1));
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
+            color: var(--text-color);
+            text-align: center;
+            overflow-x: hidden;
+            padding: 1rem;
+        }
+        .container {
+            width: 100%;
+            max-width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-shadow: 0 0 10px var(--glow-color-1), 0 0 20px var(--glow-color-2);
+        }
+        h2 { font-size: 1.5rem; color: var(--glow-color-1); }
+        .prize-announcement {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        p { font-size: 1rem; line-height: 1.6; }
+        .wheel-container {
+            position: relative;
+            width: 90%;
+            max-width: 380px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .wheel-container::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            width: 0; height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #ffcc00;
+            z-index: 10;
+            filter: drop-shadow(0 -3px 2px rgba(0,0,0,0.4));
+        }
+        #spinWheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: contain;
+            transition: transform 6s cubic-bezier(0.1, 0.5, 0.2, 1);
+            box-shadow: 0 0 25px rgba(0, 242, 255, 0.5), 0 0 40px rgba(255, 0, 200, 0.4);
+        }
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            background: var(--button-bg);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--glow-color-1), 0 0 30px var(--glow-color-2);
+            transition: all 0.3s ease-in-out;
+            text-decoration: none;
+            display: inline-block;
+            min-width: 250px;
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 5px 20px var(--glow-color-1), 0 5px 40px var(--glow-color-2);
+        }
+        .btn:active:not(:disabled) { transform: translateY(0) scale(1); box-shadow: 0 0 10px var(--glow-color-1), 0 0 20px var(--glow-color-2); }
+        .btn:disabled { cursor: not-allowed; background: #555; box-shadow: none; opacity: 0.6; }
+        .share-section, .claim-form-section, .success-message {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .claim-form { width: 100%; display: flex; flex-direction: column; gap: 1rem; }
+        .claim-form input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--glow-color-1);
+            background: rgba(0,0,0,0.3);
+            color: var(--text-color);
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+        }
+        .claim-form input::placeholder { color: rgba(255,255,255,0.6); }
+        .claim-form input:focus { outline: none; box-shadow: 0 0 10px var(--glow-color-1); }
+        .share-counter-text {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--glow-color-1);
+            font-weight: 600;
+        }
+        #container-43d462a0984a973311f3b7b8ee5b9827 {
+            margin-top: 2rem;
+        }
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5rem; }
+            .wheel-container { width: 100%; max-width: 300px; }
+            .btn { padding: 0.8rem 1.5rem; font-size: 1rem; min-width: 220px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Spin the Wheel & Win a Guaranteed Prize!</h1>
+        <div class="wheel-container">
+            <img src="spin.png" alt="Spinning Wheel" id="spinWheel">
+        </div>
+        <div id="spinControls">
+            <button class="btn" id="spinBtn">SPIN NOW</button>
+        </div>
+        <div id="claimFormSection" class="claim-form-section">
+            <div id="prizeAnnouncement" class="prize-announcement"></div>
+            <h2>Enter Details to Proceed</h2>
+            <form id="claimForm" class="claim-form">
+                <input type="text" id="userName" placeholder="Enter Your Name" required>
+                <input type="tel" id="userMobile" placeholder="Enter Your Mobile Number" required pattern="[0-9]{10}">
+                <button type="submit" class="btn">Submit Details</button>
+            </form>
+        </div>
+        <div id="shareSection" class="share-section">
+            <h2>Final Step!</h2>
+            <p>To claim your prize, share this with 5 friends on WhatsApp.</p>
+            <a href="#" id="whatsappShareBtn" class="btn" target="_blank">Share with Friend (1/5)</a>
+            <p id="shareCounterText" class="share-counter-text"></p>
+        </div>
+        <div id="successMessage" class="success-message">
+            <h2>Your prize claim has been submitted successfully!</h2>
+            <p>Congratulations again! You will be contacted soon.</p>
+        </div>
+    </div>
+
+    <script async="async" data-cfasync="false" src="//pl26868280.profitableratecpm.com/43d462a0984a973311f3b7b8ee5b9827/invoke.js"></script>
+    <div id="container-43d462a0984a973311f3b7b8ee5b9827"></div>
+
+    <script>
+        const wheel = document.getElementById('spinWheel');
+        const spinBtn = document.getElementById('spinBtn');
+        const spinControls = document.getElementById('spinControls');
+        const claimFormSection = document.getElementById('claimFormSection');
+        const prizeAnnouncement = document.getElementById('prizeAnnouncement');
+        const claimForm = document.getElementById('claimForm');
+        const shareSection = document.getElementById('shareSection');
+        const whatsappShareBtn = document.getElementById('whatsappShareBtn');
+        const shareCounterText = document.getElementById('shareCounterText');
+        const successMessage = document.getElementById('successMessage');
+
+        let shareCount = 0;
+        const requiredShares = 5;
+
+        const prizes = [
+            '₹100 PayTM Cash', 'Movie Ticket', 'iPhone 14', 'Samsung TV',
+            'Smartwatch', 'Bluetooth Speaker', 'AirPods', 'Better Luck Next Time',
+            'Amazon Voucher ₹50', 'Free Coffee Coupon', '20% Discount Voucher', 'Surprise Gift Box'
+        ];
+        const winnablePrizes = prizes.filter(prize => prize !== 'Better Luck Next Time');
+        const segmentAngle = 360 / prizes.length;
+        let currentRotation = 0;
+        let isSpinning = false;
+
+        spinBtn.addEventListener('click', () => {
+            if (isSpinning) return;
+            isSpinning = true;
+            spinBtn.disabled = true;
+
+            const winningPrize = winnablePrizes[Math.floor(Math.random() * winnablePrizes.length)];
+            const winningSegmentIndex = prizes.indexOf(winningPrize);
+            
+            const randomRotations = Math.floor(Math.random() * 6) + 5;
+            const randomDegreeInSegment = Math.floor(Math.random() * (segmentAngle - 10)) + 5;
+            const targetAngle = (winningSegmentIndex * segmentAngle) + randomDegreeInSegment;
+            const totalRotation = (360 * randomRotations) + targetAngle;
+
+            currentRotation += totalRotation;
+            wheel.style.transform = `rotate(${currentRotation}deg)`;
+        });
+
+        wheel.addEventListener('transitionend', () => {
+            isSpinning = false;
+            const finalAngle = currentRotation % 360;
+            const winningSegmentIndex = Math.floor((360 - finalAngle) / segmentAngle) % prizes.length;
+            const wonPrize = prizes[winningSegmentIndex];
+            confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+            prizeAnnouncement.textContent = `Congratulations! You won ${wonPrize}`;
+            spinControls.style.display = 'none';
+            claimFormSection.style.display = 'flex';
+        });
+        
+        claimForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const mobile = document.getElementById('userMobile').value;
+            if (name.trim() === '' || !/^[0-9]{10}$/.test(mobile.trim())) {
+                alert('Please enter a valid name and 10-digit mobile number.');
+                return;
+            }
+            
+            claimFormSection.style.display = 'none';
+            shareSection.style.display = 'flex';
+
+            // ======================================================
+            // ==============  YAHAN CHANGE KIYA GAYA HAI  ==============
+            // ======================================================
+            const pageUrl = window.location.href; // Get the current page URL
+            const shareText = `I just won a real prize on this Spin & Win page! Try your luck too! 👇\n\n${pageUrl}`;
+            // ======================================================
+
+            whatsappShareBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+        });
+        
+        whatsappShareBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.open(whatsappShareBtn.href, '_blank');
+            shareCount++;
+            const sharesRemaining = requiredShares - shareCount;
+            if (sharesRemaining > 0) {
+                whatsappShareBtn.textContent = `Share with Friend (${shareCount + 1}/${requiredShares})`;
+                shareCounterText.textContent = `Please share with ${sharesRemaining} more friends to unlock your prize.`;
+            } else {
+                whatsappShareBtn.textContent = 'Completed!';
+                whatsappShareBtn.disabled = true;
+                setTimeout(() => {
+                    shareSection.style.display = 'none';
+                    successMessage.style.display = 'flex';
+                }, 800);
+            }
+        });
+    </script>
+
+</body>
+</html>
+<!-- Bottom Ad Section -->
+    <div style="width: 100%; text-align: center; margin-top: 2rem;">
+      <script async="async" data-cfasync="false" src="//pl26868280.profitableratecpm.com/43d462a0984a973311f3b7b8ee5b9827/invoke.js"></script>
+      <div id="container-43d462a0984a973311f3b7b8ee5b9827"></div>
+    </div>
+
+</body>
+</html>
+<script async="async" data-cfasync="false" src="//pl26868280.profitableratecpm.com/43d462a0984a973311f3b7b8ee5b9827/invoke.js"></script>
+<div id="container-43d462a0984a973311f3b7b8ee5b9827"></div>
